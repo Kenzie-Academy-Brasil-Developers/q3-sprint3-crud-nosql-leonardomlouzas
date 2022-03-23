@@ -17,27 +17,35 @@ class Post:
         self.content = content
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
+        self.id = Post.new_id()
 
     @staticmethod
     def serialize_post(post: Union["Post", dict]):
         if type(post) is Post:
-            post._id = str(post._id)
+            post.__delattr__("_id")
 
         if type(post) is dict:
-            post.update({"_id": str(post["_id"])})
+            post.__delitem__("_id")
 
         return post
 
     @staticmethod
-    def get_all():
-        post_list = db.posts.find()
+    def new_id():
+        last_id = 0
+        posts = list(db.posts.find())
+        for post in posts:
+            last_id = post["id"] if "id" in post else last_id
 
-        return post_list
+        return last_id + 1
+
+    @staticmethod
+    def get_all():
+        return db.posts.find()
 
     @staticmethod
     def get_one(post_id):
         try:
-            return db.posts.find_one({"_id": ObjectId(post_id)})
+            return db.posts.find_one({"id": post_id})
         except InvalidId:
             return None
 
@@ -45,16 +53,14 @@ class Post:
         db.posts.insert_one(self.__dict__)
 
     @staticmethod
-    def delete_post(post_id: str):
+    def delete_post(post_id: int):
 
-        deleted_post = db.posts.find_one_and_delete({"_id": ObjectId(post_id)})
-
-        return deleted_post
+        return db.posts.find_one_and_delete({"id": post_id})
 
     @staticmethod
     def patch_post(post_id: str, data: dict):
 
-        prev_data = db.posts.find_one({"_id": ObjectId(post_id)})
+        prev_data = db.posts.find_one({"id": post_id})
 
         updated_data = {}
         if "author" in data:
@@ -72,7 +78,5 @@ class Post:
         updated_data = {"$set": updated_data}
 
         updated_post = db.posts.find_one_and_update(prev_data, updated_data)
-
-        print(updated_post)
 
         return updated_post

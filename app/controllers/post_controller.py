@@ -13,9 +13,8 @@ def get_posts():
     return jsonify(post_list), HTTPStatus.OK
 
 
-def get_post(post_id: str):
-    post = Post.get_one(post_id)
-
+def get_post(post_id: int):
+    post = Post.get_one(int(post_id))
     if not post:
         return {"error": f"Post {post_id} not found"}, HTTPStatus.NOT_FOUND
 
@@ -41,8 +40,8 @@ def create_post():
     return serialized_post.__dict__, HTTPStatus.CREATED
 
 
-def remove_post(post_id: str):
-    deleted_post = Post.delete_post(post_id)
+def remove_post(post_id: int):
+    deleted_post = Post.delete_post(int(post_id))
 
     if not deleted_post:
         return {"error": f"Post {post_id} not found"}, HTTPStatus.NOT_FOUND
@@ -52,7 +51,7 @@ def remove_post(post_id: str):
     return deleted_post, HTTPStatus.OK
 
 
-def patch_post(post_id: str):
+def patch_post(post_id: int):
     data = request.get_json()
 
     if (
@@ -63,12 +62,12 @@ def patch_post(post_id: str):
     ):
         return {"error": "Missing keys"}, HTTPStatus.BAD_REQUEST
 
-    if not Post.get_one(post_id):
+    if not Post.get_one(int(post_id)):
         return {"error": f"Post {post_id} not found"}, HTTPStatus.NOT_FOUND
 
-    Post.patch_post(post_id, data)
+    Post.patch_post(int(post_id), data)
 
-    patched_post = Post.get_one(post_id)
+    patched_post = Post.get_one(int(post_id))
     patched_post = Post.serialize_post(patched_post)
 
     return patched_post
