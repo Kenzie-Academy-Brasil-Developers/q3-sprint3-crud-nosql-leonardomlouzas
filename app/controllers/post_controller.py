@@ -65,7 +65,10 @@ def patch_post(post_id: int):
     if not Post.get_one(int(post_id)):
         return {"error": f"Post {post_id} not found"}, HTTPStatus.NOT_FOUND
 
-    Post.patch_post(int(post_id), data)
+    patched_post = Post.patch_post(int(post_id), data)
+
+    if "error" in patched_post.keys():
+        return patched_post, HTTPStatus.BAD_REQUEST
 
     patched_post = Post.get_one(int(post_id))
     patched_post = Post.serialize_post(patched_post)
