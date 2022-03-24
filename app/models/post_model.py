@@ -2,7 +2,6 @@ import pymongo
 from typing import Union
 from datetime import datetime
 from bson.errors import InvalidId
-from bson.objectid import ObjectId
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 
@@ -61,19 +60,30 @@ class Post:
     def patch_post(post_id: str, data: dict):
 
         prev_data = db.posts.find_one({"id": post_id})
-
         updated_data = {}
+
         if "author" in data:
             updated_data["author"] = data["author"]
+            data.__delitem__("author")
 
         if "content" in data:
             updated_data["content"] = data["content"]
+            data.__delitem__("content")
 
         if "tags" in data:
             updated_data["tags"] = data["tags"]
+            data.__delitem__("tags")
 
         if "title" in data:
             updated_data["title"] = data["title"]
+            data.__delitem__("title")
+
+        if data:
+            return {
+                "error": "There are Wrong Keys in the request body.",
+                "Wrong Keys": list(data.keys()),
+                "Correct keys": ["author", "content", "tags", "title"],
+            }
 
         updated_data = {"$set": updated_data}
 
