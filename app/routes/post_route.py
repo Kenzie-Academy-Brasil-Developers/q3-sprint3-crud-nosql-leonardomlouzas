@@ -1,5 +1,4 @@
 # from app.controllers.post_controller import get_posts, create_post
-from datetime import datetime
 from app.controllers import post_controller
 
 
