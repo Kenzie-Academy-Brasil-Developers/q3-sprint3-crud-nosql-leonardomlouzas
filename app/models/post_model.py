@@ -1,11 +1,15 @@
+import os
 import pymongo
 from typing import Union
 from datetime import datetime
 from bson.errors import InvalidId
 
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+CLIENT_URL = os.getenv("CLIENT_URL")
+DB_NAME = os.getenv("DB_NAME")
 
-db = client["kenzie"]
+client = pymongo.MongoClient(CLIENT_URL)
+
+db = client[DB_NAME]
 
 
 class Post:
